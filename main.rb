@@ -1,5 +1,18 @@
+projects = {}
+require "json"
+if File.exist?("projects.json") 
+    File.open("projects.json", "r") do |file|
+        saved_projects = file.read
+        projects = JSON.parse(saved_projects)
+    end
+else
 active_proj = []
 completed_proj = []
+projects = {
+    "active" => active_proj,
+    "completed" => completed_proj
+}
+end
 loop do
   puts "=== Project Tracker (RUBY) ==="
   puts "\n1. View Projects"
@@ -11,26 +24,26 @@ loop do
 
   case option
   when 1
-    puts "Here are your active projects:\n#{active_proj}"
-    puts "Here are your completed projects: \n#{completed_proj}"
+    puts "Here are your active projects:\n#{projects["active"]}"
+    puts "Here are your completed projects: \n#{projects["completed"]}"
 
   when 2
     puts "What is the name of the project you would like to add?"
     new_proj = gets.chomp.downcase
-    active_proj << new_proj
+    projects["active"] << new_proj
     puts "Great! Your project has been added"
   when 3
-    puts "Active projects: #{active_proj}"
+    puts "Active projects: #{projects["active"]}"
     puts "Which project have you completed?"
     complete_input = gets.chomp.downcase
-    if active_proj.include?(complete_input)
-        active_proj.delete(complete_input)
-        completed_proj << complete_input
+    if projects["active"].include?(complete_input)
+        projects["active"].delete(complete_input)
+        projects["completed"] << complete_input
         puts "#{complete_input} has been moved to your completed projects! Congrats on finishing!"
     else
-        puts "#{complete_input} is not one of your projects. Please double check your spelling. Your active projects are as follows: #{active_proj}"
+        puts "#{complete_input} is not one of your projects. Please double check your spelling. Your active projects are as follows: #{projects["active"]}"
     end
-    when 4
+  when 4
     puts "Are you sure you want to leave?"
     leave = gets.chomp.downcase
     if leave == "yes"
@@ -38,5 +51,10 @@ loop do
     else
         puts "Okay."
     end
+else 
+    puts "Invalid option. Please choose 1-4."
   end
+end
+File.open("projects.json", "w") do |file|
+    file.write projects.to_json
 end
